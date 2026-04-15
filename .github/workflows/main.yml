@@ -135,11 +135,11 @@ jobs:
     steps:
       - run: echo "tagged latest"
 
-  # --- DEPLOY JOBS (BUG version: no !cancelled()) ---
+  # --- DEPLOY JOBS (FIXED: !cancelled() breaks skip propagation) ---
   deploy-to-dev:
     name: deploy-to-dev
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ !cancelled() && !failure() && github.ref == 'refs/heads/main' }}
     needs:
       - docker-build
       - unit-test-aggregate
@@ -154,7 +154,7 @@ jobs:
   deploy-to-staging:
     name: deploy-to-staging
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ !cancelled() && !failure() && github.ref == 'refs/heads/main' }}
     needs:
       - docker-build
       - unit-test-aggregate
@@ -169,7 +169,7 @@ jobs:
   smoke-test-staging:
     name: smoke-test-staging
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ !cancelled() && !failure() && github.ref == 'refs/heads/main' }}
     needs: [deploy-to-staging]
     steps:
       - run: echo "staging smoke test passed"
@@ -177,7 +177,7 @@ jobs:
   deploy-to-prod:
     name: deploy-to-prod
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ !cancelled() && !failure() && github.ref == 'refs/heads/main' }}
     needs: [docker-build, smoke-test-staging]
     steps:
       - run: echo "deployed to prod"
